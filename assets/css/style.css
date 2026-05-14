@@ -71,6 +71,25 @@ body {
     background: var(--text-secondary);
 }
 
+/* Ticker Tape Animation */
+.ticker-content {
+    display: inline-flex;
+    animation: ticker-scroll 40s linear infinite;
+}
+
+.ticker-content:hover {
+    animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+    flex-shrink: 0;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }

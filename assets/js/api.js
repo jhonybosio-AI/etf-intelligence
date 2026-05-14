@@ -147,6 +147,48 @@ function updateWidget(id, price, change) {
         changeEl.innerHTML = `<span class="font-mono">${isPositive ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}% (Hoje)</span>`;
         changeEl.className = isPositive ? 'text-green-400 text-xs font-medium' : 'text-red-400 text-xs font-medium';
     }
+    
+    // Also update ticker whenever a widget is updated
+    renderTickerTape();
+}
+
+/**
+ * Renders the scrolling ticker tape with current market data
+ */
+function renderTickerTape() {
+    const ticker = document.getElementById('ticker-tape');
+    if (!ticker) return;
+
+    // Build the items list
+    const items = [];
+    
+    // Add Indices
+    Object.keys(state.indices).forEach(key => {
+        const data = state.indices[key];
+        const isPositive = data.regularMarketChangePercent >= 0;
+        items.push(`
+            <div class="ticker-item px-6 flex items-center space-x-2 border-r border-white/10">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${key.replace('^', '')}</span>
+                <span class="font-mono font-bold text-sm">R$ ${data.regularMarketPrice.toLocaleString('pt-BR')}</span>
+                <span class="font-mono text-[10px] ${isPositive ? 'text-green-400' : 'text-red-400'}">${isPositive ? '▲' : '▼'}${Math.abs(data.regularMarketChangePercent).toFixed(2)}%</span>
+            </div>
+        `);
+    });
+
+    // Add ETFs
+    state.etfs.slice(0, 5).forEach(etf => {
+        const isPositive = etf.regularMarketChangePercent >= 0;
+        items.push(`
+            <div class="ticker-item px-6 flex items-center space-x-2 border-r border-white/10">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${etf.symbol}</span>
+                <span class="font-mono font-bold text-sm">R$ ${etf.regularMarketPrice.toLocaleString('pt-BR')}</span>
+                <span class="font-mono text-[10px] ${isPositive ? 'text-green-400' : 'text-red-400'}">${isPositive ? '▲' : '▼'}${Math.abs(etf.regularMarketChangePercent).toFixed(2)}%</span>
+            </div>
+        `);
+    });
+
+    // Duplicate for seamless loop
+    ticker.innerHTML = items.join('') + items.join('');
 }
 
 async function fetchBTCPrice() {
