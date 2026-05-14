@@ -20,9 +20,26 @@
 body {
     background-color: var(--bg-dark);
     color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
-    min-h-screen;
+    min-height: 100vh;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Sparklines */
+.sparkline-container {
+    width: 100px;
+    height: 30px;
+    opacity: 0.8;
+}
+.sparkline-path {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* Glassmorphism Classes */

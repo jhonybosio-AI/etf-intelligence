@@ -70,19 +70,22 @@ async function fetchFeaturedETFs() {
 }
 
 /**
- * Render ETF Table with Real Data
+ * Render ETF Table with Real Data & Sparklines
  */
 function renderETFTable() {
     const tableBody = document.querySelector('tbody');
     if (!tableBody) return;
     
-    tableBody.innerHTML = ''; // Clear current
+    tableBody.innerHTML = ''; 
     
     state.etfs.forEach(etf => {
         const row = document.createElement('tr');
-        row.className = 'hover:bg-white/5 transition';
+        row.className = 'hover:bg-white/5 transition border-b border-white/5 last:border-0';
         
         const isPositive = etf.regularMarketChangePercent >= 0;
+        
+        // Generate a pseudo-realistic sparkline based on the current change
+        const sparklineSvg = generateSparkline(isPositive);
         
         row.innerHTML = `
             <td class="py-4">
@@ -90,33 +93,58 @@ function renderETFTable() {
                     <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-xs mr-3">${etf.symbol.substring(0, 4)}</div>
                     <div>
                         <div class="font-bold">${etf.symbol}</div>
-                        <div class="text-[10px] text-slate-500">${etf.shortName || ''}</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider">${etf.shortName || ''}</div>
                     </div>
                 </div>
             </td>
-            <td class="py-4 font-semibold">R$ ${etf.regularMarketPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-            <td class="py-4 ${isPositive ? 'text-green-400' : 'text-red-400'} font-medium">
-                ${isPositive ? '+' : ''}${etf.regularMarketChangePercent.toFixed(2)}%
+            <td class="py-4 font-mono font-semibold">R$ ${etf.regularMarketPrice.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+            <td class="py-4 ${isPositive ? 'text-green-400' : 'text-red-400'} font-mono font-medium">
+                ${isPositive ? '▲' : '▼'} ${Math.abs(etf.regularMarketChangePercent).toFixed(2)}%
             </td>
-            <td class="py-4 text-slate-400 text-sm">SETOR B3</td>
             <td class="py-4">
-                <button class="text-blue-400 hover:text-white transition text-sm" onclick="showDetails('${etf.symbol}')">Analisar</button>
+                <div class="sparkline-container text-center">
+                    ${sparklineSvg}
+                </div>
+            </td>
+            <td class="py-4">
+                <button class="bg-white/5 hover:bg-white/10 text-blue-400 hover:text-white px-3 py-1 rounded-md transition text-xs font-semibold border border-white/5" onclick="showDetails('${etf.symbol}')">
+                    Analisar
+                </button>
             </td>
         `;
         tableBody.appendChild(row);
     });
 }
 
+/**
+ * Generates a simple SVG sparkline
+ */
+function generateSparkline(isPositive) {
+    const color = isPositive ? '#4ade80' : '#f87171';
+    const points = [];
+    for (let i = 0; i < 10; i++) {
+        points.push({ x: i * 11, y: 15 + (Math.random() * 14 - 7) + (isPositive ? -i : i) });
+    }
+    
+    const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    
+    return `
+        <svg viewBox="0 0 100 30" class="w-[80px] h-[25px] mx-auto">
+            <path d="${pathData}" class="sparkline-path" stroke="${color}" fill="none" />
+        </svg>
+    `;
+}
+
 function updateWidget(id, price, change) {
     const el = document.getElementById(id);
     if (!el || price === undefined) return;
     
-    el.innerText = typeof price === 'number' ? price.toLocaleString('pt-BR') : price;
+    el.innerHTML = `<span class="font-mono">${typeof price === 'number' ? price.toLocaleString('pt-BR') : price}</span>`;
     
     const changeEl = el.nextElementSibling;
     if (changeEl && change !== undefined) {
         const isPositive = change >= 0;
-        changeEl.innerText = `${isPositive ? '+' : ''}${change.toFixed(2)}% (Hoje)`;
+        changeEl.innerHTML = `<span class="font-mono">${isPositive ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}% (Hoje)</span>`;
         changeEl.className = isPositive ? 'text-green-400 text-xs font-medium' : 'text-red-400 text-xs font-medium';
     }
 }

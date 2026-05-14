@@ -22,8 +22,8 @@
         }
     </script>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Outfit (UI) & JetBrains Mono (Finance Data) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -200,49 +200,16 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="text-slate-500 border-b border-white/5">
-                            <th class="pb-4">Ativo</th>
-                            <th class="pb-4">Preço</th>
-                            <th class="pb-4">Variação</th>
-                            <th class="pb-4">Setor</th>
-                            <th class="pb-4">Ação</th>
+                        <tr class="text-slate-500 border-b border-white/10">
+                            <th class="pb-4 font-semibold uppercase text-[10px] tracking-widest">Ativo</th>
+                            <th class="pb-4 font-semibold uppercase text-[10px] tracking-widest">Preço</th>
+                            <th class="pb-4 font-semibold uppercase text-[10px] tracking-widest">Variação</th>
+                            <th class="pb-4 font-semibold uppercase text-[10px] tracking-widest text-center">Trend (24h)</th>
+                            <th class="pb-4 font-semibold uppercase text-[10px] tracking-widest">Ação</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
-                        <tr class="hover:bg-white/5 transition">
-                            <td class="py-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-xs mr-3">WRLD</div>
-                                    <div>
-                                        <div class="font-bold">WRLD11</div>
-                                        <div class="text-[10px] text-slate-500">Investo Global Equities</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 font-semibold">R$ 140,36</td>
-                            <td class="py-4 text-green-400 font-medium">+0,82%</td>
-                            <td class="py-4 text-slate-400 text-sm">Global / Neutro</td>
-                            <td class="py-4">
-                                <button class="text-blue-400 hover:text-white transition text-sm">Analisar</button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-white/5 transition">
-                            <td class="py-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gold rounded flex items-center justify-center font-bold text-xs text-dark mr-3">HASH</div>
-                                    <div>
-                                        <div class="font-bold">HASH11</div>
-                                        <div class="text-[10px] text-slate-500">Hashdex Crypto Index</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 font-semibold">R$ 50,27</td>
-                            <td class="py-4 text-green-400 font-medium">+2,45%</td>
-                            <td class="py-4 text-slate-400 text-sm">Criptoativos</td>
-                            <td class="py-4">
-                                <button class="text-blue-400 hover:text-white transition text-sm">Analisar</button>
-                            </td>
-                        </tr>
+                        <!-- Dynamic content -->
                     </tbody>
                 </table>
             </div>
