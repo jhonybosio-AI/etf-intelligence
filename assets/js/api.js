@@ -131,15 +131,74 @@ async function fetchBTCPrice() {
     } catch (e) {}
 }
 
+/**
+ * Fetch Global Geopolitical/Natural Events (NASA & USGS)
+ */
+async function fetchGlobalEvents() {
+    try {
+        // 1. USGS Earthquakes (Significant in the last day)
+        const usgsRes = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson');
+        const usgsData = await usgsRes.json();
+        
+        // 2. NASA EONET (Natural Events)
+        const nasaRes = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&days=7');
+        const nasaData = await nasaRes.json();
+
+        // Convert to standard event format for the map
+        const events = [];
+
+        // Map USGS
+        if (usgsData.features) {
+            usgsData.features.slice(0, 10).forEach(f => {
+                if (f.properties.mag > 4) { // Only show significant ones
+                    events.push({
+                        coords: [f.geometry.coordinates[1], f.geometry.coordinates[0]],
+                        type: 'seismic',
+                        title: `Terremoto Mag ${f.properties.mag}`,
+                        desc: f.properties.place,
+                        color: '#ef4444' // Red
+                    });
+                }
+            });
+        }
+
+        // Map NASA
+        if (nasaData.events) {
+            nasaData.events.slice(0, 15).forEach(e => {
+                const geometry = e.geometry[0];
+                if (geometry && geometry.coordinates) {
+                    events.push({
+                        coords: [geometry.coordinates[1], geometry.coordinates[0]],
+                        type: 'climate',
+                        title: e.title,
+                        desc: e.categories[0]?.title || 'Evento Natural',
+                        color: '#f97316' // Orange
+                    });
+                }
+            });
+        }
+
+        // Dispatch to map if window function exists
+        if (window.updateMapEvents) {
+            window.updateMapEvents(events);
+        }
+
+    } catch (error) {
+        console.error("Erro ao buscar eventos globais:", error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchMarketOverview();
     fetchFeaturedETFs();
     fetchBTCPrice();
+    fetchGlobalEvents();
     
     // Auto-refresh
     setInterval(() => {
         fetchMarketOverview();
         fetchFeaturedETFs();
         fetchBTCPrice();
+        fetchGlobalEvents();
     }, 60000); // 1 minute
 });

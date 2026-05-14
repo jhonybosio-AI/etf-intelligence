@@ -46,6 +46,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add Zoom Control at the bottom right
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+    // Layer Group for Dynamic Events (NASA/USGS)
+    const eventLayer = L.layerGroup().addTo(map);
+
+    window.updateMapEvents = function(events) {
+        eventLayer.clearLayers(); // Clean old markers
+
+        events.forEach(event => {
+            const marker = L.circleMarker(event.coords, {
+                radius: 6,
+                fillColor: event.color,
+                color: '#fff',
+                weight: 1,
+                opacity: 0.8,
+                fillOpacity: 0.6
+            }).addTo(eventLayer);
+
+            marker.bindPopup(`
+                <div style="background: #1e293b; color: #fff; padding: 10px; border-radius: 8px; border-left: 4px solid ${event.color}">
+                    <strong style="color: ${event.color}">${event.title}</strong><br>
+                    <span style="font-size: 11px; color: #94a3b8;">${event.desc}</span>
+                </div>
+            `);
+        });
+    };
+
     // Global function to add markers from other scripts (like news.js)
     window.addNewsMarker = function(coords, title) {
         const marker = L.circleMarker(coords, {
@@ -58,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(map);
 
         marker.bindPopup(`
-            <div style="background: #1e293b; color: #fff; padding: 10px; border-radius: 8px; max-width: 200px;">
+            <div style="background: #1e293b; color: #fff; padding: 10px; border-radius: 8px; max-width: 200px; border-left: 4px solid #fbbf24">
                 <strong style="color: #fbbf24">ALERTA NEWS</strong><br>
                 <span style="font-size: 11px; color: #94a3b8;">${title}</span>
             </div>
