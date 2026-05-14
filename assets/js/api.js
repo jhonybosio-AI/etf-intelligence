@@ -127,6 +127,8 @@ async function fetchBTCPrice() {
         const data = await res.json();
         const price = data.bitcoin.brl;
         const change = data.bitcoin.brl_24h_change;
+        
+        state.indices['BTC-BRL'] = { regularMarketPrice: price, regularMarketChangePercent: change };
         updateWidget('idx-btc', 'R$ ' + price.toLocaleString('pt-BR'), change);
     } catch (e) {}
 }
@@ -183,9 +185,66 @@ async function fetchGlobalEvents() {
             window.updateMapEvents(events);
         }
 
+        // Generate Correlation Insights
+        generateCorrelationInsights(events);
+
     } catch (error) {
         console.error("Erro ao buscar eventos globais:", error);
     }
+}
+
+/**
+ * Heuristic Engine for Market Correlations
+ */
+function generateCorrelationInsights(events) {
+    const container = document.getElementById('insights-container');
+    if (!container) return;
+
+    const insights = [];
+    const dollar = state.indices['USDBRL']?.regularMarketPrice || 5.10;
+    const btc = state.indices['BTC-BRL']?.regularMarketPrice || 300000;
+    const hasNasaEvents = events.some(e => e.type === 'climate');
+    const hasSeismicEvents = events.some(e => e.type === 'seismic');
+
+    // Rule 1: Currency & Commodities
+    if (dollar > 5.10) {
+        insights.push({
+            icon: 'trending-up',
+            color: 'text-green-400',
+            title: 'Pressão Cambial vs Commodities',
+            text: `Dólar em R$ ${dollar.toFixed(2)} + Alertas Climáticos: Pressão positiva em ETFs de Commodities (ex: BOVA11, GOLD11).`
+        });
+    }
+
+    // Rule 2: Crypto Market Cap
+    insights.push({
+        icon: 'bit-coin',
+        color: 'text-amber-400',
+        title: 'Dominância Cripto',
+        text: 'Bitcoin sustentando patamares recordes impulsiona fluxo para HASH11 e ITIT11 no mercado local.'
+    });
+
+    // Rule 3: Natural Disasters & Supply Chain
+    if (hasSeismicEvents || hasNasaEvents) {
+        insights.push({
+            icon: 'alert-triangle',
+            color: 'text-red-400',
+            title: 'Risco de Supply Chain',
+            text: 'Eventos geofísicos detectados. Monitorar ETFs de semicondutores e tecnologia (SMH) por possíveis gargalos logísticos.'
+        });
+    }
+
+    container.innerHTML = insights.map(ins => `
+        <div class="bg-white/5 p-4 rounded-xl border border-white/5 hover:border-white/10 transition group">
+            <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="${ins.icon}" class="w-4 h-4 ${ins.color}"></i>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">${ins.title}</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">${ins.text}</p>
+        </div>
+    `).join('');
+
+    if (window.lucide) window.lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
